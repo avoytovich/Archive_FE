@@ -93,7 +93,7 @@ const Home: React.FC = () => {
   const handleBulkDelete = async () => {
     try {
       setLoading(true);
-      await axios.post(`http://localhost:8033/archives/delete`, {
+      await axios.post(`http://localhost:8033/archives/bulk-delete`, {
         ids: selectedDocuments,
       });
       alert("Documents deleted successfully");
