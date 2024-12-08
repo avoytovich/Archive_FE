@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import {
   Table,
   TableBody,
@@ -15,6 +14,7 @@ import {
   Paper,
 } from "@mui/material";
 import Pagination from "@mui/material/Pagination";
+import { useDocumentService } from "../services/documentService";
 
 type Document = {
   id: string;
@@ -30,89 +30,82 @@ const Home: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const fileInputRef = useRef<HTMLInputElement>(null); // Ref for the file input
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Custom service hooks for document operations
+  const {
+    fetchDocuments,
+    uploadDocument,
+    deleteDocument,
+    bulkDeleteDocuments,
+  } = useDocumentService();
 
   // Fetch documents whenever the page changes
   useEffect(() => {
-    fetchDocuments(page);
-  }, [page]);
-
-  const fetchDocuments = async (page: number) => {
-    try {
+    const fetchData = async () => {
       setLoading(true);
-      const { data } = await axios.get(`http://localhost:8033/archives?page=${page - 1}&size=5`);
-      setDocuments(data.archivesWithUrl); // Assuming your response has archivesWithUrl
-      setTotalPages(data.totalPages);
-    } catch (error) {
-      console.error("Error fetching documents:", error);
-    } finally {
+      const result = await fetchDocuments(page);
+      if (result) {
+        setDocuments(result.archivesWithUrl);
+        setTotalPages(result.totalPages);
+      }
       setLoading(false);
-    }
-  };
+    };
+    fetchData();
+  }, [page]);
 
   const handleUpload = async () => {
     if (!file) return alert("Please select a file to upload.");
 
-    const formData = new FormData();
-    formData.append("archive", file);
+    setLoading(true);
+    const success = await uploadDocument(file);
+    setLoading(false);
 
-    try {
-      setLoading(true);
-      await axios.post("http://localhost:8033/create", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+    if (success) {
       alert("File uploaded successfully");
-
-      setFile(null); // Clear file state
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ""; // Clear input field
-      }
-      fetchDocuments(page); // Refresh the document list
-    } catch (error) {
-      console.error("Error uploading file:", error);
+      setFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      const result = await fetchDocuments(page);
+      setDocuments(result.archivesWithUrl);
+      setTotalPages(result.totalPages);
+    } else {
       alert("Failed to upload file");
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    try {
-      setLoading(true);
-      await axios.delete(`http://localhost:8033/archives/${id}`);
+    setLoading(true);
+    const success = await deleteDocument(id);
+    setLoading(false);
+
+    if (success) {
       alert("Document deleted successfully");
-      fetchDocuments(page);
-    } catch (error) {
-      console.error("Error deleting document:", error);
+      const result = await fetchDocuments(page);
+      setDocuments(result.archivesWithUrl);
+      setTotalPages(result.totalPages);
+    } else {
       alert("Failed to delete document");
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleBulkDelete = async () => {
-    try {
-      setLoading(true);
-      await axios.post(`http://localhost:8033/archives/bulk-delete`, {
-        ids: selectedDocuments,
-      });
+    setLoading(true);
+    const success = await bulkDeleteDocuments(selectedDocuments);
+    setLoading(false);
+
+    if (success) {
       alert("Documents deleted successfully");
       setSelectedDocuments([]);
-      fetchDocuments(page);
-    } catch (error) {
-      console.error("Error deleting documents:", error);
+      const result = await fetchDocuments(page);
+      setDocuments(result.archivesWithUrl);
+      setTotalPages(result.totalPages);
+    } else {
       alert("Failed to delete documents");
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedDocuments(documents.map((doc) => doc.id));
-    } else {
-      setSelectedDocuments([]);
-    }
+    setSelectedDocuments(checked ? documents.map((doc) => doc.id) : []);
   };
 
   const handleSelectOne = (id: string, checked: boolean) => {
@@ -130,7 +123,7 @@ const Home: React.FC = () => {
         <div className="mb-6 flex items-center space-x-4">
           <input
             type="file"
-            ref={fileInputRef} // Attach the ref
+            ref={fileInputRef}
             onChange={(e) => setFile(e.target.files?.[0] || null)}
             style={{ height: "42px" }}
             className="border rounded px-4 py-2 w-full"
