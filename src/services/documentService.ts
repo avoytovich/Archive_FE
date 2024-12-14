@@ -36,10 +36,10 @@ type FetchDocumentsResponse = {
 
 // Service hook
 export const useDocumentService = () => {
-  const fetchDocuments = async (page: number, group?: string): Promise<FetchDocumentsResponse | null> => {
+  const fetchDocuments = async (page: number, group?: string, search?: string): Promise<FetchDocumentsResponse | null> => {
     try {
       const { data } = await apiClient.get<FetchDocumentsResponse | null>("/archives", {
-        params: { page: page - 1, size: 5, group },
+        params: { page: page - 1, size: 5, group, search },
       });
       return data;
     } catch (error) {
