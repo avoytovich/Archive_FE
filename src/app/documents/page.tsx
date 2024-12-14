@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useSearchParams, usePathname } from "next/navigation";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -16,6 +16,8 @@ import {
   TextField,
 } from "@mui/material";
 import Pagination from "@mui/material/Pagination";
+
+import UploadDocument from "@/components/UploadDocument";
 import { useDocumentService } from "../../services/documentService";
 
 type Document = {
@@ -25,6 +27,13 @@ type Document = {
 };
 
 const Documents: React.FC = () => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const initialSearchQuery = searchParams.get("search") || "";
+  const selectedGroup = searchParams.get("group") || "";
+  const router = useRouter();
+
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
@@ -32,11 +41,7 @@ const Documents: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [newGroup, setNewGroup] = useState("");
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const selectedGroup = searchParams.get("group") || "";
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
 
   const {
     fetchDocuments,
@@ -50,7 +55,8 @@ const Documents: React.FC = () => {
     try {
       const result = await fetchDocuments(
         page,
-        newGroup || selectedGroup || undefined
+        newGroup || selectedGroup || undefined,
+        searchQuery
       );
       if (result) {
         setDocuments(result.archivesWithUrl);
@@ -61,7 +67,7 @@ const Documents: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, newGroup, selectedGroup, fetchDocuments]);
+  }, [page, newGroup, selectedGroup, searchQuery, fetchDocuments]);
 
   useEffect(() => {
     if (selectedGroup !== "a new one") refreshDocuments();
@@ -144,15 +150,31 @@ const Documents: React.FC = () => {
     );
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    // Update the URL with the search query
+    const updatedQuery = new URLSearchParams({
+      group: selectedGroup || "",
+      page: String(page),
+      search: query,
+    });
+
+    router.replace(`${pathname}?${updatedQuery.toString()}`);
+  };
+
   const isUploadDisabled = loading || (!file || (selectedGroup === "a new one" && !newGroup));
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow">
-        <h1 className="text-xl font-bold mb-4">Document Management</h1>
-        <h2 className="text-lg mb-4">
-          Group: <strong>{newGroup || selectedGroup}</strong>
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-xl font-bold">Document Management</h1>
+          <h2 className="text-lg">
+            Group: <strong>{newGroup || selectedGroup}</strong>
+          </h2>
+        </div>
 
         {selectedGroup === "a new one" && (
           <TextField
@@ -166,24 +188,21 @@ const Documents: React.FC = () => {
           />
         )}
 
-        <div className="mb-6 flex items-center space-x-4">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="border rounded px-4 py-2 w-full"
+        <div className="mb-4 flex items-center justify-between space-x-4">
+          <UploadDocument
+            fileInputRef={fileInputRef}
+            setFile={setFile}
+            loading={loading}
+            handleUpload={handleUpload}
+            isUploadDisabled={isUploadDisabled}
           />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleUpload}
-            disabled={isUploadDisabled}
-          >
-            {loading ? <CircularProgress size={24} /> : "Upload"}
-          </Button>
-        </div>
-
-        <div className="mb-4 flex justify-end">
+          <TextField
+            variant="outlined"
+            placeholder="Search documents..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            size="small"
+          />
           <Button
             variant="contained"
             color="error"
