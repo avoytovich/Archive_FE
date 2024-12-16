@@ -176,18 +176,6 @@ const Documents: React.FC = () => {
           </h2>
         </div>
 
-        {selectedGroup === "a new one" && (
-          <TextField
-            label="Enter New Group Name"
-            variant="outlined"
-            size="small"
-            required
-            value={newGroup}
-            onChange={(e) => setNewGroup(e.target.value)}
-            className="mb-2"
-          />
-        )}
-
         <div className="mb-4 flex items-center justify-between space-x-4">
           <UploadDocument
             fileInputRef={fileInputRef}
