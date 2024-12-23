@@ -1,28 +1,41 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  CircularProgress,
-} from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
+
+import Modal from "@/components/common/Modal"; // Import the new Modal component
 
 type UploadDocumentsProps = {
   fileInputRef: React.RefObject<HTMLInputElement>;
   setFile: (f: File | null) => void;
   loading: boolean;
-  handleUpload: () => void;
+  handleUpload: () => Promise<void>;
   isUploadDisabled: boolean;
 };
 
-const UploadDocuments: React.FC<UploadDocumentsProps> = ({ fileInputRef, setFile, loading, handleUpload, isUploadDisabled }) => {
+const UploadDocuments: React.FC<UploadDocumentsProps> = ({
+  fileInputRef,
+  setFile,
+  loading,
+  handleUpload,
+  isUploadDisabled,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setFile(null); // Reset file input when modal is closed
+  };
+
+  const handleUploadWithClose = async () => {
+    try {
+      await handleUpload(); // Perform the upload
+      handleCloseModal();   // Close the modal on success
+    } catch (error) {
+      console.error("Error uploading document:", error);
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFile(e.target.files?.[0] || null);
@@ -36,30 +49,33 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({ fileInputRef, setFile
       </Button>
 
       {/* Modal */}
-      <Dialog open={isModalOpen} onClose={handleCloseModal} maxWidth="sm" fullWidth>
-        <DialogTitle>Upload File</DialogTitle>
-        <DialogContent className="h-26">
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title="Upload File"
+        loading={loading}
+        actions={
+          <>
+            <Button onClick={handleCloseModal} color="secondary">
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleUploadWithClose}
+              disabled={isUploadDisabled}
+            >              {loading ? <CircularProgress size={24} color="warning" /> : "Upload"}
+            </Button>
+          </>
+        }
+      >
         <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            className="border rounded mt-2 px-4 py-2 w-full"
-          />
-        </DialogContent>
-        <DialogActions className="mb-6 pr-6">
-          <Button onClick={handleCloseModal} color="secondary">
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleUpload}
-            disabled={isUploadDisabled}
-          >
-            {loading ? <CircularProgress size={24} /> : "Upload"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          className="border rounded mt-2 px-4 py-2 w-full"
+        />
+      </Modal>
     </div>
   );
 };

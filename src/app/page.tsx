@@ -1,48 +1,41 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // For client-side navigation
-import { FormControl, InputLabel, Select, MenuItem, Button, CircularProgress } from "@mui/material";
+import React, { useEffect, useState, useCallback } from "react";
 
+import { useServices } from "@/services";
 import AddNewGroup from "@/components/AddNewGroup";
-import { useDocumentService } from "../services/documentService";
+import GroupSelect from "@/components/GroupSelect";
+import NavigateButton from "@/components/NavigateButton";
 
 const GroupSelector: React.FC = () => {
-  const router = useRouter();
-
   const [groups, setGroups] = useState<string[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const { fetchGroups } = useServices();
 
-  const { fetchGroups } = useDocumentService();
-
-  const handleNavigate = () => {
-    if (!selectedGroup) {
-      alert("Please select a group first.");
-      return;
-    }
-    // Navigate to the document management page with the selected group
-    router.push(`/documents?group=${selectedGroup}`);
-  };
-
-  // Fetch groups from the backend
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchGroupsList = async () => {
       setLoading(true);
+      setError(null);
       try {
-        const groups: string[] = await fetchGroups();
-        if (groups) {
-          setGroups(groups);
-        }
+        const data = await fetchGroups();
+        setGroups(data);
       } catch (error) {
         console.error("Error fetching groups:", error);
+        setError("Failed to fetch groups. Please try again.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchGroupsList();
   }, [fetchGroups]);
+
+  const handleGroupSelect = useCallback((group: string) => {
+    setSelectedGroup(group);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex justify-center items-center">
@@ -51,34 +44,14 @@ const GroupSelector: React.FC = () => {
           <h1 className="text-xl font-bold mb-4">Select a Group</h1>
           <AddNewGroup groups={groups}/>
         </div>
-        {/* Group Selector */}
-        <FormControl fullWidth variant="outlined" className="mb-4">
-          <InputLabel id="group-select-label">Select Group</InputLabel>
-          <Select
-            labelId="group-select-label"
-            value={selectedGroup}
-            onChange={(e) => setSelectedGroup(e.target.value)}
-            label="Select Group"
-            disabled={loading}
-          >
-            {groups.map((group) => (
-              <MenuItem key={group} value={group}>
-                {group}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        {/* Navigate Button */}
-        <Button
-          variant="contained"
-          color="primary"
-          fullWidth
-          onClick={handleNavigate}
-          disabled={!selectedGroup || loading}
-        >
-          {loading ? <CircularProgress size={24} /> : "Go to Documents"}
-        </Button>
+        {error && <div className="text-red-500 mb-4">{error}</div>}
+        <GroupSelect
+          groups={groups}
+          selectedGroup={selectedGroup}
+          handleGroupSelect={handleGroupSelect}
+          loading={loading}
+        />
+        <NavigateButton selectedGroup={selectedGroup} loading={loading} />
       </div>
     </div>
   );

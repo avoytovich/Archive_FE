@@ -1,21 +1,6 @@
-import axios from "axios";
+import apiClient from "@/utils/apiClient";
 import { useMemo } from "react";
 
-// Axios instance with baseURL
-const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8033",
-});
-
-// Axios interceptor for global error handling
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error("API Error:", error.response?.data || error.message);
-    return Promise.reject(error);
-  }
-);
-
-// Utility to create FormData
 const createFormData = (file: File, group?: string): FormData => {
   const formData = new FormData();
   formData.append("archive", file);
@@ -30,12 +15,11 @@ type Document = {
 };
 
 type FetchDocumentsResponse = {
-  archivesWithUrl: Document[]; // Or your actual type
+  archivesWithUrl: Document[];
   totalPages: number;
 };
 
-// Service hook
-export const useDocumentService = () => {
+export const useServices = () => {
   const fetchDocuments = async (page: number, group?: string, search?: string): Promise<FetchDocumentsResponse | null> => {
     try {
       const { data } = await apiClient.get<FetchDocumentsResponse | null>("/archives", {
