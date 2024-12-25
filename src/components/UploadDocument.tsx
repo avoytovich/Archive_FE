@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button, CircularProgress } from "@mui/material";
+import { useState } from 'react';
+import { Button, CircularProgress } from '@mui/material';
 
-import Modal from "@/components/common/Modal"; // Import the new Modal component
+import Modal from '@/components/common/Modal'; // Import the new Modal component
 
 type UploadDocumentsProps = {
   fileInputRef: React.RefObject<HTMLInputElement>;
@@ -31,9 +31,9 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({
   const handleUploadWithClose = async () => {
     try {
       await handleUpload(); // Perform the upload
-      handleCloseModal();   // Close the modal on success
+      handleCloseModal(); // Close the modal on success
     } catch (error) {
-      console.error("Error uploading document:", error);
+      console.error('Error uploading document:', error);
     }
   };
 
@@ -64,7 +64,13 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({
               color="primary"
               onClick={handleUploadWithClose}
               disabled={isUploadDisabled}
-            >              {loading ? <CircularProgress size={24} color="warning" /> : "Upload"}
+            >
+              {' '}
+              {loading ? (
+                <CircularProgress size={24} color="warning" />
+              ) : (
+                'Upload'
+              )}
             </Button>
           </>
         }

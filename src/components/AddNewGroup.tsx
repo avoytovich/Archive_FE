@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button, TextField, CircularProgress } from "@mui/material";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button, TextField, CircularProgress } from '@mui/material';
 
-import Modal from "@/components/common/Modal"; // Import the reusable Modal
-import { useServices } from "@/services";
+import Modal from '@/components/common/Modal'; // Import the reusable Modal
+import { useServices } from '@/services';
 
 type AddNewGroupProps = {
   groups: string[];
@@ -13,7 +13,7 @@ type AddNewGroupProps = {
 
 const AddNewGroup: React.FC<AddNewGroupProps> = ({ groups }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newGroup, setNewGroup] = useState("");
+  const [newGroup, setNewGroup] = useState('');
   const [isTouched, setIsTouched] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ const AddNewGroup: React.FC<AddNewGroupProps> = ({ groups }) => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setFile(null);
-    setNewGroup("");
+    setNewGroup('');
   };
 
   const { uploadDocument } = useServices();
@@ -35,23 +35,23 @@ const AddNewGroup: React.FC<AddNewGroupProps> = ({ groups }) => {
 
   const handleUpload = async () => {
     if (!file) {
-      alert("Please select a file to upload.");
+      alert('Please select a file to upload.');
       return;
     }
     setLoading(true);
     try {
       const success = await uploadDocument(file, newGroup);
       if (success) {
-        alert("File uploaded successfully");
+        alert('File uploaded successfully');
         if (newGroup) {
           const updatedQuery = new URLSearchParams({ group: newGroup });
           router.push(`/documents?${updatedQuery.toString()}`);
         }
       } else {
-        alert("Failed to upload file");
+        alert('Failed to upload file');
       }
     } catch (error) {
-      console.error("Error uploading document:", error);
+      console.error('Error uploading document:', error);
     }
   };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +77,7 @@ const AddNewGroup: React.FC<AddNewGroupProps> = ({ groups }) => {
           onChange={handleChange}
           onBlur={() => setIsTouched(true)}
           error={isValidNewGroup}
-          helperText={isValidNewGroup && "This group already exists"}
+          helperText={isValidNewGroup && 'This group already exists'}
         />
       </div>
 
@@ -104,7 +104,11 @@ const AddNewGroup: React.FC<AddNewGroupProps> = ({ groups }) => {
         onClose={handleCloseModal}
         actions={
           <>
-            <Button onClick={handleCloseModal} color="secondary" disabled={loading}>
+            <Button
+              onClick={handleCloseModal}
+              color="secondary"
+              disabled={loading}
+            >
               Cancel
             </Button>
             <Button
@@ -113,7 +117,11 @@ const AddNewGroup: React.FC<AddNewGroupProps> = ({ groups }) => {
               onClick={handleUpload}
               disabled={isUploadDisabled}
             >
-              {loading ? <CircularProgress size={24} color="warning" /> : "Create"}
+              {loading ? (
+                <CircularProgress size={24} color="warning" />
+              ) : (
+                'Create'
+              )}
             </Button>
           </>
         }

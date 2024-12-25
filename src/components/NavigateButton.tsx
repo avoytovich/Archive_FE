@@ -1,17 +1,16 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { Button, CircularProgress } from "@mui/material";
+import { useRouter } from 'next/navigation';
+import { Button, CircularProgress } from '@mui/material';
 
-import { handleNavigate } from "@/utils/navigation";
+import { handleNavigate } from '@/utils/navigation';
 
 const NavigateButton: React.FC<{
   selectedGroup: string;
   loading: boolean;
 }> = ({ selectedGroup, loading }) => {
-
   const router = useRouter();
-  
+
   return (
     <Button
       variant="contained"
@@ -20,9 +19,9 @@ const NavigateButton: React.FC<{
       onClick={() => handleNavigate(router, selectedGroup)}
       disabled={!selectedGroup || loading}
     >
-      {loading ? <CircularProgress size={24} /> : "Go to Documents"}
+      {loading ? <CircularProgress size={24} /> : 'Go to Documents'}
     </Button>
   );
-}
+};
 
 export default NavigateButton;
