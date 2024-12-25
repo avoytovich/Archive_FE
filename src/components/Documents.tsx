@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import {
   Table,
   TableBody,
@@ -13,11 +13,11 @@ import {
   Button,
   Paper,
   TextField,
-} from "@mui/material";
-import Pagination from "@mui/material/Pagination";
+} from '@mui/material';
+import Pagination from '@mui/material/Pagination';
 
-import UploadDocument from "@/components/UploadDocument";
-import { useServices } from "@/services";
+import UploadDocument from '@/components/UploadDocument';
+import { useServices } from '@/services';
 
 type Document = {
   id: string;
@@ -29,8 +29,8 @@ const Documents: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const initialSearchQuery = searchParams.get("search") || "";
-  const selectedGroup = searchParams.get("group") || "";
+  const initialSearchQuery = searchParams.get('search') || '';
+  const selectedGroup = searchParams.get('group') || '';
   const router = useRouter();
 
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -61,7 +61,7 @@ const Documents: React.FC = () => {
         setTotalPages(result.totalPages);
       }
     } catch (error) {
-      console.error("Error fetching documents:", error);
+      console.error('Error fetching documents:', error);
     } finally {
       setLoading(false);
     }
@@ -69,21 +69,22 @@ const Documents: React.FC = () => {
 
   const handleUpload = async () => {
     if (!file) {
-      alert("Please select a file to upload.");
+      alert('Please select a file to upload.');
       return;
     }
     setLoading(true);
     try {
       const success = await uploadDocument(file, selectedGroup);
       if (success) {
-        alert("File uploaded successfully");
+        alert('File uploaded successfully');
         setFile(null);
-        if (fileInputRef.current) fileInputRef.current.value = "";
+        if (fileInputRef.current) fileInputRef.current.value = '';
         refreshDocuments();
-      } else {        alert("Failed to upload file");
+      } else {
+        alert('Failed to upload file');
       }
     } catch (error) {
-      console.error("Error uploading document:", error);
+      console.error('Error uploading document:', error);
     } finally {
       setLoading(false);
     }
@@ -94,13 +95,13 @@ const Documents: React.FC = () => {
     try {
       const success = await deleteDocument(id);
       if (success) {
-        alert("Document deleted successfully");
+        alert('Document deleted successfully');
         refreshDocuments();
       } else {
-        alert("Failed to delete document");
+        alert('Failed to delete document');
       }
     } catch (error) {
-      console.error("Error deleting document:", error);
+      console.error('Error deleting document:', error);
     } finally {
       setLoading(false);
     }
@@ -108,21 +109,21 @@ const Documents: React.FC = () => {
 
   const handleBulkDelete = async () => {
     if (!selectedDocuments.length) {
-      alert("Please select documents to delete.");
+      alert('Please select documents to delete.');
       return;
     }
     setLoading(true);
     try {
       const success = await bulkDeleteDocuments(selectedDocuments);
       if (success) {
-        alert("Documents deleted successfully");
+        alert('Documents deleted successfully');
         setSelectedDocuments([]);
         refreshDocuments();
       } else {
-        alert("Failed to delete documents");
+        alert('Failed to delete documents');
       }
     } catch (error) {
-      console.error("Error deleting documents:", error);
+      console.error('Error deleting documents:', error);
     } finally {
       setLoading(false);
     }
@@ -144,7 +145,7 @@ const Documents: React.FC = () => {
 
     // Update the URL with the search query
     const updatedQuery = new URLSearchParams({
-      group: selectedGroup || "",
+      group: selectedGroup || '',
       page: String(page),
       search: query,
     });
@@ -210,8 +211,10 @@ const Documents: React.FC = () => {
                     onChange={(e) => handleSelectAll(e.target.checked)}
                   />
                 </TableCell>
-                <TableCell style={{ fontWeight: "bold" }}>Title</TableCell>
-                <TableCell style={{ textAlign: "center", fontWeight: "bold" }}>Actions</TableCell>
+                <TableCell style={{ fontWeight: 'bold' }}>Title</TableCell>
+                <TableCell style={{ textAlign: 'center', fontWeight: 'bold' }}>
+                  Actions
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -220,7 +223,9 @@ const Documents: React.FC = () => {
                   <TableCell padding="checkbox">
                     <Checkbox
                       checked={selectedDocuments.includes(doc.id)}
-                      onChange={(e) => handleSelectOne(doc.id, e.target.checked)}
+                      onChange={(e) =>
+                        handleSelectOne(doc.id, e.target.checked)
+                      }
                     />
                   </TableCell>
                   <TableCell>{doc.title}</TableCell>
