@@ -2,21 +2,11 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Checkbox,
-  Button,
-  Paper,
-  TextField,
-} from '@mui/material';
 import Pagination from '@mui/material/Pagination';
 
-import UploadDocument from '@/components/UploadDocument';
+import DocumentTable from '@/components/DocumentTable';
+import DocumentActions from '@/components/DocumentActions';
+import DocumentModal from '@/components/DocumentModal';
 import { useServices } from '@/services';
 
 type Document = {
@@ -40,6 +30,17 @@ const Documents: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [documentIdDel, setDocumentIdDel] = useState('');
+
+  const handleOpenModal = (id: string) => {
+    setDocumentIdDel(id);
+    setIsModalOpen(true);
+  };
+  const handleCloseModal = () => {
+    setDocumentIdDel('');
+    setIsModalOpen(false);
+  };
 
   const {
     fetchDocuments,
@@ -104,6 +105,7 @@ const Documents: React.FC = () => {
       console.error('Error deleting document:', error);
     } finally {
       setLoading(false);
+      handleCloseModal();
     }
   };
 
@@ -153,8 +155,6 @@ const Documents: React.FC = () => {
     router.replace(`${pathname}?${updatedQuery.toString()}`);
   };
 
-  const isUploadDisabled = loading || !file;
-
   useEffect(() => {
     refreshDocuments();
   }, [refreshDocuments]);
@@ -168,92 +168,25 @@ const Documents: React.FC = () => {
             Group: <strong>{selectedGroup}</strong>
           </h2>
         </div>
-
-        <div className="mb-4 flex items-center justify-between space-x-4">
-          <UploadDocument
-            fileInputRef={fileInputRef}
-            setFile={setFile}
-            loading={loading}
-            handleUpload={handleUpload}
-            isUploadDisabled={isUploadDisabled}
-          />
-          <TextField
-            variant="outlined"
-            placeholder="Search documents..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            size="small"
-          />
-          <Button
-            variant="contained"
-            color="error"
-            disabled={!selectedDocuments.length || loading}
-            onClick={handleBulkDelete}
-          >
-            {`Delete ${selectedDocuments.length} Selected`}
-          </Button>
-        </div>
-
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    indeterminate={
-                      selectedDocuments.length > 0 &&
-                      selectedDocuments.length < documents.length
-                    }
-                    checked={
-                      documents.length > 0 &&
-                      selectedDocuments.length === documents.length
-                    }
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                  />
-                </TableCell>
-                <TableCell style={{ fontWeight: 'bold' }}>Title</TableCell>
-                <TableCell style={{ textAlign: 'center', fontWeight: 'bold' }}>
-                  Actions
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {documents.map((doc) => (
-                <TableRow key={doc.id}>
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={selectedDocuments.includes(doc.id)}
-                      onChange={(e) =>
-                        handleSelectOne(doc.id, e.target.checked)
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>{doc.title}</TableCell>
-                  <TableCell>
-                    <div className="flex justify-center items-center space-x-2">
-                      <a
-                        href={doc.fileUrl}
-                        download
-                        className="text-blue-500 underline"
-                      >
-                        Read
-                      </a>
-                      <Button
-                        variant="text"
-                        color="error"
-                        onClick={() => handleDelete(doc.id)}
-                        disabled={loading}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
+        <DocumentActions
+          fileInputRef={fileInputRef}
+          setFile={setFile}
+          loading={loading}
+          handleUpload={handleUpload}
+          isUploadDisabled={loading || !file}
+          searchQuery={searchQuery}
+          handleSearchChange={handleSearchChange}
+          selectedDocuments={selectedDocuments}
+          handleBulkDelete={handleBulkDelete}
+        />
+        <DocumentTable
+          documents={documents}
+          selectedDocuments={selectedDocuments}
+          loading={loading}
+          onSelectAll={handleSelectAll}
+          onSelectOne={handleSelectOne}
+          onDelete={handleOpenModal}
+        />
         <div className="mt-6 flex justify-center">
           <Pagination
             count={totalPages}
@@ -266,6 +199,12 @@ const Documents: React.FC = () => {
           />
         </div>
       </div>
+      <DocumentModal
+        isOpen={isModalOpen}
+        loading={loading}
+        onClose={handleCloseModal}
+        onDelete={() => handleDelete(documentIdDel)}
+      />
     </div>
   );
 };
