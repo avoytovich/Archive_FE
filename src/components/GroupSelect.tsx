@@ -6,7 +6,7 @@ const GroupSelect: React.FC<{
   handleGroupSelect: (group: string) => void;
   loading: boolean;
 }> = ({ groups, selectedGroup, handleGroupSelect, loading }) => (
-  <FormControl fullWidth variant="outlined" className="mb-4">
+  <FormControl fullWidth variant="outlined" sx={{ marginBottom: '20px' }}>
     <InputLabel id="group-select-label">Select Group</InputLabel>
     <Select
       labelId="group-select-label"
