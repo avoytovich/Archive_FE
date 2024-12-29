@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, TextField, CircularProgress } from '@mui/material';
+import toast from 'react-hot-toast';
 
 import Modal from '@/components/common/Modal'; // Import the reusable Modal
 import { useServices } from '@/services';
+import { handleError } from '@/utils';
 
 type AddNewGroupProps = {
   groups: string[];
@@ -35,23 +37,21 @@ const AddNewGroup: React.FC<AddNewGroupProps> = ({ groups }) => {
 
   const handleUpload = async () => {
     if (!file) {
-      alert('Please select a file to upload.');
+      handleError(new Error('Please select a file to upload'));
       return;
     }
     setLoading(true);
     try {
       const success = await uploadDocument(file, newGroup);
       if (success) {
-        alert('File uploaded successfully');
+        toast.success('File uploaded successfully');
         if (newGroup) {
           const updatedQuery = new URLSearchParams({ group: newGroup });
           router.push(`/documents?${updatedQuery.toString()}`);
         }
-      } else {
-        alert('Failed to upload file');
       }
-    } catch (error) {
-      console.error('Error uploading document:', error);
+    } catch (error: unknown) {
+      handleError(error, 'Error uploading document');
     }
   };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

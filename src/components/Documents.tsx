@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import Pagination from '@mui/material/Pagination';
 
@@ -8,6 +9,7 @@ import DocumentTable from '@/components/DocumentTable';
 import DocumentActions from '@/components/DocumentActions';
 import DocumentModal from '@/components/DocumentModal';
 import { useServices } from '@/services';
+import { handleError } from '@/utils';
 
 type Document = {
   id: string;
@@ -61,8 +63,8 @@ const Documents: React.FC = () => {
         setDocuments(result.archivesWithUrl);
         setTotalPages(result.totalPages);
       }
-    } catch (error) {
-      console.error('Error fetching documents:', error);
+    } catch (error: unknown) {
+      handleError(error, 'Failed to fetch documents');
     } finally {
       setLoading(false);
     }
@@ -70,22 +72,20 @@ const Documents: React.FC = () => {
 
   const handleUpload = async () => {
     if (!file) {
-      alert('Please select a file to upload.');
+      handleError(new Error('Please select a file to upload'));
       return;
     }
     setLoading(true);
     try {
       const success = await uploadDocument(file, selectedGroup);
       if (success) {
-        alert('File uploaded successfully');
+        toast.success('File uploaded successfully');
         setFile(null);
         if (fileInputRef.current) fileInputRef.current.value = '';
         refreshDocuments();
-      } else {
-        alert('Failed to upload file');
       }
-    } catch (error) {
-      console.error('Error uploading document:', error);
+    } catch (error: unknown) {
+      handleError(error, 'Failed to upload file');
     } finally {
       setLoading(false);
     }
@@ -96,14 +96,15 @@ const Documents: React.FC = () => {
     try {
       const success = await deleteDocument(id);
       if (success) {
-        alert('Document deleted successfully');
+        toast.success('Document deleted successfully');
         refreshDocuments();
-      } else {
-        alert('Failed to delete document');
       }
-    } catch (error) {
-      console.error('Error deleting document:', error);
+    } catch (error: unknown) {
+      handleError(error, 'Failed to delete document');
     } finally {
+      if (selectedDocuments.includes(id)) {
+        setSelectedDocuments((prev) => prev.filter((docId) => docId !== id));
+      }
       setLoading(false);
       handleCloseModal();
     }
@@ -111,21 +112,19 @@ const Documents: React.FC = () => {
 
   const handleBulkDelete = async () => {
     if (!selectedDocuments.length) {
-      alert('Please select documents to delete.');
+      toast.error('Please select documents to delete.');
       return;
     }
     setLoading(true);
     try {
       const success = await bulkDeleteDocuments(selectedDocuments);
       if (success) {
-        alert('Documents deleted successfully');
+        toast.success('Documents deleted successfully');
         setSelectedDocuments([]);
         refreshDocuments();
-      } else {
-        alert('Failed to delete documents');
       }
-    } catch (error) {
-      console.error('Error deleting documents:', error);
+    } catch (error: unknown) {
+      handleError(error, 'Failed to delete documents');
     } finally {
       setLoading(false);
     }

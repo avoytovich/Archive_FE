@@ -5,6 +5,8 @@ import { Button, CircularProgress } from '@mui/material';
 
 import Modal from '@/components/common/Modal'; // Import the new Modal component
 
+import { handleError } from '@/utils';
+
 type UploadDocumentsProps = {
   fileInputRef: React.RefObject<HTMLInputElement>;
   setFile: (f: File | null) => void;
@@ -32,8 +34,8 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({
     try {
       await handleUpload(); // Perform the upload
       handleCloseModal(); // Close the modal on success
-    } catch (error) {
-      console.error('Error uploading document:', error);
+    } catch (error: unknown) {
+      handleError(error, 'Error uploading document');
     }
   };
 
