@@ -1,6 +1,7 @@
 'use client';
 
-import React, { Component, ReactNode } from 'react';
+import { Component, ReactNode } from 'react';
+import { handleError } from '@/utils';
 
 interface Props {
   fallback: ReactNode;
@@ -20,8 +21,8 @@ class ErrorBoundary extends Component<Props, State> {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught an error', error, errorInfo);
+  componentDidCatch(error: Error) {
+    handleError(error, 'ErrorBoundary caught an error');
   }
 
   render() {

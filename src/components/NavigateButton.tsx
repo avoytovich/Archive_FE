@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { Button, CircularProgress } from '@mui/material';
 
-import { handleNavigate } from '@/utils/navigation';
+import { handleNavigate } from '@/utils';
 
 const NavigateButton: React.FC<{
   selectedGroup: string;

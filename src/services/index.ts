@@ -1,5 +1,7 @@
-import apiClient from '@/utils/apiClient';
 import { useMemo } from 'react';
+
+import apiClient from '@/utils/apiClient';
+import { handleError } from '@/utils';
 
 const createFormData = (file: File, group?: string): FormData => {
   const formData = new FormData();
@@ -33,8 +35,8 @@ export const useServices = () => {
         }
       );
       return data;
-    } catch (error) {
-      console.error('Error fetching documents:', error);
+    } catch (error: unknown) {
+      handleError(error, 'Error fetching documents');
       return null;
     }
   };
@@ -49,8 +51,8 @@ export const useServices = () => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return true;
-    } catch (error) {
-      console.error('Error uploading document:', error);
+    } catch (error: unknown) {
+      handleError(error, 'Error uploading document');
       return false;
     }
   };
@@ -59,8 +61,8 @@ export const useServices = () => {
     try {
       await apiClient.delete(`/archives/${id}`);
       return true;
-    } catch (error) {
-      console.error('Error deleting document:', error);
+    } catch (error: unknown) {
+      handleError(error, 'Error deleting document');
       return false;
     }
   };
@@ -69,8 +71,8 @@ export const useServices = () => {
     try {
       await apiClient.post('/archives/bulk-delete', { ids });
       return true;
-    } catch (error) {
-      console.error('Error bulk deleting documents:', error);
+    } catch (error: unknown) {
+      handleError(error, 'Error bulk deleting documents');
       return false;
     }
   };
@@ -79,8 +81,8 @@ export const useServices = () => {
     try {
       const { data } = await apiClient.get<string[]>('/groups');
       return data;
-    } catch (error) {
-      console.error('Error fetching groups:', error);
+    } catch (error: unknown) {
+      handleError(error, 'Error fetching groups');
       return [];
     }
   };
