@@ -96,15 +96,15 @@ const Documents: React.FC = () => {
     try {
       const success = await deleteDocument(id);
       if (success) {
+        if (selectedDocuments.includes(id)) {
+          setSelectedDocuments((prev) => prev.filter((docId) => docId !== id));
+        }
         toast.success('Document deleted successfully');
         refreshDocuments();
       }
     } catch (error: unknown) {
       handleError(error, 'Failed to delete document');
     } finally {
-      if (selectedDocuments.includes(id)) {
-        setSelectedDocuments((prev) => prev.filter((docId) => docId !== id));
-      }
       setLoading(false);
       handleCloseModal();
     }

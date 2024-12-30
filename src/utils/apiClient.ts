@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { handleError } from '.';
 
 // Axios instance with baseURL
 const apiClient = axios.create({
@@ -10,7 +9,7 @@ const apiClient = axios.create({
 apiClient.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
-    handleError(error, 'API Error');
+    console.log('API Error:', error);
     return Promise.reject(error);
   }
 );
