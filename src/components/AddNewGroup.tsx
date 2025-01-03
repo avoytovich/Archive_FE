@@ -11,9 +11,13 @@ import { handleError } from '@/utils';
 
 type AddNewGroupProps = {
   groups: string[];
+  isFetchingGroups: boolean;
 };
 
-const AddNewGroup: React.FC<AddNewGroupProps> = ({ groups }) => {
+const AddNewGroup: React.FC<AddNewGroupProps> = ({
+  groups,
+  isFetchingGroups,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newGroup, setNewGroup] = useState('');
   const [isTouched, setIsTouched] = useState(false);
@@ -94,7 +98,12 @@ const AddNewGroup: React.FC<AddNewGroupProps> = ({ groups }) => {
   return (
     <div>
       {/* Trigger Button */}
-      <Button variant="contained" color="primary" onClick={handleOpenModal}>
+      <Button
+        disabled={isFetchingGroups}
+        variant="contained"
+        color="primary"
+        onClick={handleOpenModal}
+      >
         Add New Group
       </Button>
 
