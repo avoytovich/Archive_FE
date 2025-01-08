@@ -1,25 +1,18 @@
 import React from 'react';
 import type { NextPage } from 'next';
 
-import { getRandomColor } from '@/utils';
-
 interface ShelfProps {
   groups: string[];
-  handleGroupSelect: (group: string) => void;
+  handleTopicSelect: (group: string) => void;
 }
 
-const Shelf: NextPage<ShelfProps> = ({ groups, handleGroupSelect }) => {
+const Shelf: NextPage<ShelfProps> = ({ groups, handleTopicSelect }) => {
   const books = groups.map((group) => {
     return {
       id: group.toLowerCase(),
       title: group,
-      color: getRandomColor(),
     };
   });
-
-  const handleBookClick = (id: string) => {
-    handleGroupSelect(id);
-  };
 
   return (
     <div className="flex flex-col items-center p-8 bg-gray-100 h-auto">
@@ -27,8 +20,9 @@ const Shelf: NextPage<ShelfProps> = ({ groups, handleGroupSelect }) => {
         {books.map((book) => (
           <div
             key={book.id}
-            className={`flex justify-center items-center w-36 h-48 text-white font-bold text-lg rounded-lg shadow-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-xl ${book.color}`}
-            onClick={() => handleBookClick(book.title)}
+            id={`book-${book.title}`}
+            className={`book flex justify-center items-center w-36 h-48 text-white font-bold text-lg rounded-lg shadow-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-xl`}
+            onClick={() => handleTopicSelect(book.title)}
           >
             {book.title}
           </div>

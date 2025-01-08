@@ -164,7 +164,7 @@ const Documents: React.FC = () => {
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-xl font-bold">Document Management</h1>
           <h2 className="text-lg">
-            Group: <strong>{selectedGroup}</strong>
+            Topic: <strong>{selectedGroup}</strong>
           </h2>
         </div>
         <DocumentActions
