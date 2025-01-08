@@ -9,20 +9,21 @@ import Modal from '@/components/common/Modal'; // Import the reusable Modal
 import { useServices } from '@/services';
 import { handleError } from '@/utils';
 
-type AddNewGroupProps = {
+type AddNewTopicProps = {
   groups: string[];
-  isFetchingGroups: boolean;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
 };
 
-const AddNewGroup: React.FC<AddNewGroupProps> = ({
+const AddNewTopic: React.FC<AddNewTopicProps> = ({
   groups,
-  isFetchingGroups,
+  loading,
+  setLoading,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newGroup, setNewGroup] = useState('');
   const [isTouched, setIsTouched] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
 
@@ -99,12 +100,12 @@ const AddNewGroup: React.FC<AddNewGroupProps> = ({
     <div>
       {/* Trigger Button */}
       <Button
-        disabled={isFetchingGroups}
+        disabled={loading}
         variant="contained"
         color="primary"
         onClick={handleOpenModal}
       >
-        Add New Group
+        Add New Topic
       </Button>
 
       {/* Modal */}
@@ -141,4 +142,4 @@ const AddNewGroup: React.FC<AddNewGroupProps> = ({
   );
 };
 
-export default AddNewGroup;
+export default AddNewTopic;
