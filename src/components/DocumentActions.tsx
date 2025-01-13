@@ -1,5 +1,8 @@
 import React from 'react';
-import { Button, TextField } from '@mui/material';
+import Link from 'next/link';
+import { Button, TextField, Box } from '@mui/material';
+import { ArrowBack } from '@mui/icons-material';
+
 import UploadDocument from '@/components/UploadDocument';
 
 type DocumentActionsProps = {
@@ -27,6 +30,12 @@ const DocumentActions: React.FC<DocumentActionsProps> = ({
 }) => {
   return (
     <div className="mb-4 flex items-center justify-between space-x-4">
+      <Link href="/">
+        <Box display="flex" alignItems="center" sx={{ gap: 0.5 }}>
+          <ArrowBack />
+          <span>Library</span>
+        </Box>
+      </Link>
       <UploadDocument
         fileInputRef={fileInputRef}
         setFile={setFile}
