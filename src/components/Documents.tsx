@@ -19,6 +19,7 @@ type Document = {
 
 const Documents: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const debounceSearch = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const initialSearchQuery = searchParams.get('search') || '';
@@ -31,6 +32,7 @@ const Documents: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchInput, setSearchInput] = useState(initialSearchQuery);
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [documentIdDel, setDocumentIdDel] = useState('');
@@ -142,16 +144,24 @@ const Documents: React.FC = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
-    setSearchQuery(query);
+    setSearchInput(query);
 
-    // Update the URL with the search query
-    const updatedQuery = new URLSearchParams({
-      group: selectedGroup || '',
-      page: String(page),
-      search: query,
-    });
+    if (debounceSearch.current) {
+      clearTimeout(debounceSearch.current);
+    }
 
-    router.replace(`${pathname}?${updatedQuery.toString()}`);
+    debounceSearch.current = setTimeout(() => {
+      setSearchQuery(query);
+
+      // Update the URL with the search query after the debounce delay
+      const updatedQuery = new URLSearchParams({
+        group: selectedGroup || '',
+        page: String(page),
+        search: query,
+      });
+
+      router.replace(`${pathname}?${updatedQuery.toString()}`);
+    }, 900); // 300ms debounce delay
   };
 
   useEffect(() => {
@@ -173,7 +183,7 @@ const Documents: React.FC = () => {
           loading={loading}
           handleUpload={handleUpload}
           isUploadDisabled={loading || !file}
-          searchQuery={searchQuery}
+          searchQuery={searchInput}
           handleSearchChange={handleSearchChange}
           selectedDocuments={selectedDocuments}
           handleBulkDelete={handleBulkDelete}
