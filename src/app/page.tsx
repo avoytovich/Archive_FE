@@ -1,17 +1,20 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 
-import AddNewGroup from '@/components/AddNewGroup';
-import GroupSelect from '@/components/GroupSelect';
-import NavigateButton from '@/components/NavigateButton';
+import Shelf from '@/components/Shelf';
+import AddNewTopic from '@/components/AddNewTopic';
+import LoadingBookIndicator from '@/components/common/LoadingBookIndicator';
+
 import { useServices } from '@/services';
-import { handleError } from '@/utils';
+import { handleNavigate, handleError } from '@/utils';
 
-const GroupSelector: React.FC = () => {
+const Library: React.FC = () => {
   const [groups, setGroups] = useState<string[]>([]);
-  const [selectedGroup, setSelectedGroup] = useState<string>('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const router = useRouter();
 
   const { fetchGroups } = useServices();
 
@@ -27,31 +30,35 @@ const GroupSelector: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchGroupsList();
   }, [fetchGroups]);
 
-  const handleGroupSelect = useCallback((group: string) => {
-    setSelectedGroup(group);
-  }, []);
+  const handleTopicSelect = useCallback(
+    (group: string) => {
+      handleNavigate(router, `/documents?group=${group}`);
+    },
+    [router]
+  );
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex justify-center items-center">
-      <div className="max-w-md w-full bg-white p-6 rounded shadow">
+      <div className="max-w-xl w-full bg-white p-6 rounded shadow">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-xl font-bold mb-4">Select a Group</h1>
-          <AddNewGroup groups={groups} />
+          <h1 className="text-xl font-bold mb-4">Library</h1>
+          <AddNewTopic
+            groups={groups}
+            loading={loading}
+            setLoading={setLoading}
+          />
         </div>
-        <GroupSelect
-          groups={groups}
-          selectedGroup={selectedGroup}
-          handleGroupSelect={handleGroupSelect}
-          loading={loading}
-        />
-        <NavigateButton selectedGroup={selectedGroup} loading={loading} />
+        {loading ? (
+          <LoadingBookIndicator />
+        ) : (
+          <Shelf groups={groups} handleTopicSelect={handleTopicSelect} />
+        )}
       </div>
     </div>
   );
 };
 
-export default GroupSelector;
+export default Library;

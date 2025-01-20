@@ -1,7 +1,20 @@
 import { useMemo } from 'react';
-
-import apiClient from '@/utils/apiClient';
+import axios from 'axios';
 import { handleError } from '@/utils';
+
+// Axios instance with baseURL
+const apiClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8033',
+});
+
+// Axios interceptor for global error handling
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error: unknown) => {
+    console.log('API Error:', error);
+    return Promise.reject(error);
+  }
+);
 
 const createFormData = (file: File, group?: string): FormData => {
   const formData = new FormData();

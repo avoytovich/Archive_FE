@@ -4,12 +4,8 @@ interface Router {
   push: (url: string) => void;
 }
 
-export const handleNavigate = (router: Router, selectedGroup: string) => {
-  if (!selectedGroup) {
-    alert('Please select a group first.');
-    return;
-  }
-  router.push(`/documents?group=${selectedGroup}`);
+export const handleNavigate = (router: Router, url: string) => {
+  router.push(url);
 };
 
 export const handleError = (error: unknown, message?: string) => {
