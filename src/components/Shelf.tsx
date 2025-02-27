@@ -21,7 +21,7 @@ const Shelf: NextPage<ShelfProps> = ({ groups, handleTopicSelect }) => {
           <div
             key={book.id}
             id={`book-${book.title}`}
-            className={`book flex justify-center items-center w-36 h-48 text-white font-bold text-lg rounded-lg shadow-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-xl`}
+            className={`book flex justify-center items-center w-36 h-48 text-white font-bold text-lg rounded-lg shadow-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-xl text-center`}
             onClick={() => handleTopicSelect(book.title)}
           >
             {book.title}
